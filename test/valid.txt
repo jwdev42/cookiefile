@@ -1,0 +1,5 @@
+# Netscape HTTP Cookie File
+# https://curl.haxx.se/rfc/cookie_spec.html
+
+.example.net	TRUE	/	FALSE	2146723199	test	testvalue
+subdomain.example.net	TRUE	/foo/bar	FALSE	2014934927	foo	bar
