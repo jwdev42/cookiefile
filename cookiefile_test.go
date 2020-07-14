@@ -6,12 +6,19 @@ import (
 	"testing"
 )
 
-func TestLoadValidCookies(t *testing.T) {
+func TestLoad(t *testing.T) {
 	cookies, err := Load("test/valid.txt")
 	if err != nil {
 		t.Error(err)
 	}
 	for i, cookie := range cookies {
 		t.Logf("Cookie %3d: %s", i, cookie)
+	}
+}
+
+func TestLoadJar(t *testing.T) {
+	_, err := LoadJar("test/valid.txt")
+	if err != nil {
+		t.Error(err)
 	}
 }

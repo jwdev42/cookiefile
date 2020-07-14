@@ -7,7 +7,10 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/jwdev42/cookiefile/domainname"
+	"golang.org/x/net/publicsuffix"
 	"net/http"
+	"net/http/cookiejar"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -147,4 +150,51 @@ func Load(path string) ([]*http.Cookie, error) {
 		return nil, err
 	}
 	return cookies, nil
+}
+
+func LoadJar(path string) (http.CookieJar, error) {
+	getHost := func(cookie *http.Cookie) string {
+		h := cookie.Domain
+		if len(h) > 0 && h[0] == '.' {
+			return h[1:]
+		}
+		return h
+	}
+	f, err := os.Open(path)
+	defer f.Close()
+	if err != nil {
+		return nil, err
+	}
+	cookiemap := make(map[string][]*http.Cookie)
+	readbuf := bufio.NewScanner(f)
+	for i := 1; readbuf.Scan(); i++ {
+		line := readbuf.Text()
+		cookie, err := parseLine(line)
+		if err != nil {
+			return nil, fmt.Errorf("Line %d: %w", i, err)
+		}
+		if cookie != nil {
+			host := getHost(cookie)
+			_, ok := cookiemap[host]
+			if !ok {
+				cookiemap[host] = make([]*http.Cookie, 0, 5)
+			}
+			cookiemap[host] = append(cookiemap[host], cookie)
+		}
+	}
+	if err := readbuf.Err(); err != nil {
+		return nil, err
+	}
+	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range cookiemap {
+		u, err := url.Parse("http://" + k)
+		if err != nil {
+			return nil, err
+		}
+		jar.SetCookies(u, v)
+	}
+	return jar, nil
 }
