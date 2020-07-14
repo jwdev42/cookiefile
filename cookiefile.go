@@ -1,6 +1,8 @@
 /* This file is part of the "cookiefile" library, ©2020 Jörg Walter
  *  This software is licensed under the "GNU Lesser General Public License version 3" */
 
+//cookiefile is a library that provides functions for reading netscape-formatted cookie files.
+//For more information about the file format, see https://curl.haxx.se/docs/http-cookies.html
 package cookiefile
 
 import (
@@ -128,6 +130,7 @@ func parseLine(line string) (*http.Cookie, error) {
 	return cookie, nil
 }
 
+//Load reads all cookies from the file at path and returns them as a slice.
 func Load(path string) ([]*http.Cookie, error) {
 	f, err := os.Open(path)
 	defer f.Close()
@@ -152,6 +155,7 @@ func Load(path string) ([]*http.Cookie, error) {
 	return cookies, nil
 }
 
+//LoadJar reads all cookies from the file at path and returns a CookieJar containing them.
 func LoadJar(path string) (http.CookieJar, error) {
 	getHost := func(cookie *http.Cookie) string {
 		h := cookie.Domain
