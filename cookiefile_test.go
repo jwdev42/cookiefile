@@ -3,6 +3,7 @@
 package cookiefile
 
 import (
+	"net/url"
 	"testing"
 )
 
@@ -17,8 +18,15 @@ func TestLoad(t *testing.T) {
 }
 
 func TestLoadJar(t *testing.T) {
-	_, err := LoadJar("test/valid.txt")
+	jar, err := LoadJar("test/valid.txt")
 	if err != nil {
 		t.Error(err)
+	}
+	addr, err := url.Parse("http://example.net")
+	if err != nil {
+		t.Error(err)
+	}
+	if len(jar.Cookies(addr)) != 1 {
+		t.Errorf("Expected 1 cookie for host %q, got %d", addr.Hostname(), len(jar.Cookies(addr)))
 	}
 }
