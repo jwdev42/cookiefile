@@ -31,7 +31,10 @@ func parseBool(input string) (bool, error) {
 func parseTime(input string) (time.Time, error) {
 	t, err := strconv.ParseInt(input, 10, 64)
 	if err != nil {
-		return time.Unix(0, 0), err
+		return time.Time{}, err
+	}
+	if t == 0 {
+		return time.Time{}, nil
 	}
 	return time.Unix(t, 0), nil
 }
