@@ -81,14 +81,26 @@ func isWhitespaceAscii(r rune) bool {
 }
 
 func parseLine(line string) (*http.Cookie, error) {
-	if "" == strings.TrimFunc(line, isWhitespaceAscii) || '#' == strings.TrimLeftFunc(line, isWhitespaceAscii)[0] {
+	if "" == strings.TrimFunc(line, isWhitespaceAscii) {
 		return nil, nil
 	}
+
+	if '#' == strings.TrimLeftFunc(line, isWhitespaceAscii)[0] && !strings.HasPrefix(line, "#HttpOnly_") {
+	    return nil, nil
+	}
+
+	cookie := &http.Cookie{}
+
+	if strings.HasPrefix(line, "#HttpOnly_") {
+	    cookie.HttpOnly = true
+
+	    line = strings.TrimPrefix(line, "#HttpOnly_")
+	}
+
 	entries := strings.Split(line, "\t")
 	if len(entries) != 7 {
 		return nil, fmt.Errorf("Invalid amount of fields")
 	}
-	cookie := &http.Cookie{}
 
 	/*set domain*/
 	if err := validateDomain(entries[0]); err != nil {

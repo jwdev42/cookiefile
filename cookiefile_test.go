@@ -3,6 +3,7 @@
 package cookiefile
 
 import (
+	"fmt"
 	"net/url"
 	"testing"
 )
@@ -22,11 +23,14 @@ func TestLoadJar(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	addr, err := url.Parse("http://example.net")
-	if err != nil {
-		t.Error(err)
-	}
-	if len(jar.Cookies(addr)) != 1 {
-		t.Errorf("Expected 1 cookie for host %q, got %d", addr.Hostname(), len(jar.Cookies(addr)))
+
+	for _, host := range []string{"example.net", "httponly.net"} {
+		addr, err := url.Parse(fmt.Sprintf("http://%s", host))
+		if err != nil {
+			t.Error(err)
+		}
+		if len(jar.Cookies(addr)) != 1 {
+			t.Errorf("Expected 1 cookie for host %q, got %d", addr.Hostname(), len(jar.Cookies(addr)))
+		}
 	}
 }
